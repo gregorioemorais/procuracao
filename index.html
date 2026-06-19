@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17213a">
+    <title>Gerador de Procuração</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+    <script src="./assets/jspdf.umd.min.js"></script>
+    <script src="./assets/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Gerador de Procuração">
+        <img src="./assets/logo.png" alt="">
+        <span><strong>Procuração</strong><small>Gregório &amp; Morais Advogados</small></span>
+      </a>
+      <div class="top-actions">
+        <button id="clear" class="button secondary" type="button">Limpar</button>
+        <button id="download" class="button primary" type="button">Gerar PDF</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="form-pane" aria-label="Dados da procuração">
+        <div class="mode-switch" role="radiogroup" aria-label="Tipo da procuração">
+          <button type="button" data-mode="normal" class="is-active">Normal</button>
+          <button type="button" data-mode="under16">Menor de 16</button>
+          <button type="button" data-mode="over16">Maior de 16</button>
+        </div>
+
+        <form id="document-form" autocomplete="on">
+          <fieldset>
+            <legend>Outorgante</legend>
+            <div class="field-grid">
+              <label class="span-2">Nome completo<input name="person.name" autocomplete="name"></label>
+              <label>Nacionalidade<input name="person.nationality"></label>
+              <label>Estado civil<input name="person.maritalStatus"></label>
+              <label>Profissão<input name="person.profession"></label>
+              <label>RG<input name="person.rg"></label>
+              <label>Órgão expedidor<input name="person.rgIssuer"></label>
+              <label>CPF<input name="person.cpf" inputmode="numeric"></label>
+              <label class="span-2">E-mail<input name="person.email" type="email" autocomplete="email"></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Endereço do outorgante</legend>
+            <div class="field-grid">
+              <label class="span-2">Logradouro<input name="person.street" autocomplete="street-address"></label>
+              <label>Número<input name="person.number"></label>
+              <label>Complemento<input name="person.complement"></label>
+              <label>Bairro<input name="person.neighborhood"></label>
+              <label>CEP<input name="person.zip" inputmode="numeric" autocomplete="postal-code"></label>
+              <label>Cidade<input name="person.city" autocomplete="address-level2"></label>
+              <label>UF<input name="person.state" maxlength="2" autocomplete="address-level1"></label>
+            </div>
+          </fieldset>
+
+          <fieldset id="guardian-section" hidden>
+            <legend id="guardian-title">Representante</legend>
+            <div class="field-grid">
+              <label class="span-2">Nome completo<input name="guardian.name"></label>
+              <label>Qualidade
+                <select name="guardian.relation">
+                  <option value="">Não informar</option>
+                  <option value="genitor">Genitor</option>
+                  <option value="genitora">Genitora</option>
+                  <option value="tutor">Tutor</option>
+                  <option value="tutora">Tutora</option>
+                  <option value="curador">Curador</option>
+                  <option value="curadora">Curadora</option>
+                </select>
+              </label>
+              <label>Nacionalidade<input name="guardian.nationality"></label>
+              <label>Estado civil<input name="guardian.maritalStatus"></label>
+              <label>Profissão<input name="guardian.profession"></label>
+              <label>RG<input name="guardian.rg"></label>
+              <label>Órgão expedidor<input name="guardian.rgIssuer"></label>
+              <label>CPF<input name="guardian.cpf" inputmode="numeric"></label>
+              <label class="span-2">E-mail<input name="guardian.email" type="email"></label>
+              <label class="span-2">Logradouro<input name="guardian.street"></label>
+              <label>Número<input name="guardian.number"></label>
+              <label>Complemento<input name="guardian.complement"></label>
+              <label>Bairro<input name="guardian.neighborhood"></label>
+              <label>CEP<input name="guardian.zip" inputmode="numeric"></label>
+              <label>Cidade<input name="guardian.city"></label>
+              <label>UF<input name="guardian.state" maxlength="2"></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Fechamento</legend>
+            <div class="field-grid">
+              <label>Local<input name="document.location" value="Silvânia/GO"></label>
+              <label>Data<input name="document.date" type="date"></label>
+              <label class="span-2">Nome do arquivo<input name="document.filename" value="procuracao"></label>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <section class="preview-pane" aria-label="Prévia do PDF">
+        <header><strong>Prévia</strong><span id="page-count">A4</span></header>
+        <iframe id="preview" title="Prévia da procuração"></iframe>
+        <div id="preview-loading" class="preview-loading">Gerando prévia…</div>
+      </section>
+    </main>
+  </body>
+</html>
