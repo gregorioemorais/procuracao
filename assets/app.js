@@ -46,106 +46,104 @@ const POWER_COLUMNS = [
   },
 ];
 
-function withColor(doc, color, fn) {
-  doc.setFillColor(...color);
+function strokeIcon(doc, color, weight, fn) {
   doc.setDrawColor(...color);
+  doc.setLineWidth(weight);
   fn();
 }
 
 const ICONS = {
   building(doc, x, y, s, color) {
-    withColor(doc, color, () => {
-      doc.triangle(x, y + s * 0.45, x + s / 2, y, x + s, y + s * 0.45, 'F');
-      doc.setLineWidth(s * 0.1);
-      [0.18, 0.5, 0.82].forEach(fx => doc.line(x + s * fx, y + s * 0.5, x + s * fx, y + s * 0.88));
+    strokeIcon(doc, color, s * 0.07, () => {
+      doc.line(x + s * 0.02, y + s * 0.42, x + s * 0.5, y + s * 0.04);
+      doc.line(x + s * 0.5, y + s * 0.04, x + s * 0.98, y + s * 0.42);
+      doc.line(x + s * 0.08, y + s * 0.42, x + s * 0.92, y + s * 0.42);
+      [0.22, 0.5, 0.78].forEach(fx => doc.line(x + s * fx, y + s * 0.5, x + s * fx, y + s * 0.86));
       doc.line(x, y + s * 0.92, x + s, y + s * 0.92);
     });
   },
   people(doc, x, y, s, color) {
-    withColor(doc, color, () => {
-      doc.circle(x + s * 0.32, y + s * 0.26, s * 0.16, 'F');
-      doc.roundedRect(x + s * 0.1, y + s * 0.46, s * 0.42, s * 0.46, s * 0.08, s * 0.08, 'F');
-      doc.circle(x + s * 0.68, y + s * 0.26, s * 0.16, 'F');
-      doc.roundedRect(x + s * 0.48, y + s * 0.46, s * 0.42, s * 0.46, s * 0.08, s * 0.08, 'F');
+    strokeIcon(doc, color, s * 0.065, () => {
+      doc.circle(x + s * 0.34, y + s * 0.26, s * 0.15, 'S');
+      doc.circle(x + s * 0.7, y + s * 0.26, s * 0.15, 'S');
+      doc.roundedRect(x + s * 0.16, y + s * 0.46, s * 0.36, s * 0.44, s * 0.1, s * 0.1, 'S');
+      doc.roundedRect(x + s * 0.5, y + s * 0.46, s * 0.36, s * 0.44, s * 0.1, s * 0.1, 'S');
     });
   },
   person(doc, x, y, s, color) {
-    withColor(doc, color, () => {
-      doc.circle(x + s * 0.5, y + s * 0.24, s * 0.21, 'F');
-      doc.roundedRect(x + s * 0.16, y + s * 0.5, s * 0.68, s * 0.5, s * 0.1, s * 0.1, 'F');
+    strokeIcon(doc, color, s * 0.08, () => {
+      doc.circle(x + s * 0.5, y + s * 0.24, s * 0.2, 'S');
+      doc.roundedRect(x + s * 0.18, y + s * 0.5, s * 0.64, s * 0.46, s * 0.12, s * 0.12, 'S');
     });
   },
   document(doc, x, y, s, color) {
-    withColor(doc, color, () => {
-      doc.roundedRect(x + s * 0.1, y, s * 0.8, s, s * 0.08, s * 0.08, 'F');
+    strokeIcon(doc, color, s * 0.07, () => {
+      doc.roundedRect(x + s * 0.14, y, s * 0.72, s, s * 0.06, s * 0.06, 'S');
+      [0.3, 0.5, 0.7].forEach(fy => doc.line(x + s * 0.27, y + s * fy, x + s * 0.73, y + s * fy));
     });
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(s * 0.07);
-    [0.28, 0.5, 0.72].forEach(fy => doc.line(x + s * 0.24, y + s * fy, x + s * 0.76, y + s * fy));
   },
   check(doc, x, y, s, color) {
-    withColor(doc, color, () => doc.circle(x + s / 2, y + s / 2, s / 2, 'F'));
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(s * 0.12);
-    doc.line(x + s * 0.28, y + s * 0.52, x + s * 0.44, y + s * 0.68);
-    doc.line(x + s * 0.44, y + s * 0.68, x + s * 0.74, y + s * 0.32);
+    strokeIcon(doc, color, s * 0.08, () => {
+      doc.circle(x + s / 2, y + s / 2, s / 2 - s * 0.04, 'S');
+      doc.line(x + s * 0.28, y + s * 0.52, x + s * 0.44, y + s * 0.68);
+      doc.line(x + s * 0.44, y + s * 0.68, x + s * 0.74, y + s * 0.32);
+    });
   },
   pen(doc, x, y, s, color) {
-    doc.setDrawColor(...color);
-    doc.setLineWidth(s * 0.16);
-    doc.line(x + s * 0.08, y + s * 0.92, x + s * 0.82, y + s * 0.15);
-    withColor(doc, color, () => doc.triangle(x + s * 0.76, y + s * 0.04, x + s * 0.96, y + s * 0.22, x + s * 0.82, y + s * 0.15, 'F'));
+    strokeIcon(doc, color, s * 0.09, () => {
+      doc.line(x + s * 0.1, y + s * 0.92, x + s * 0.78, y + s * 0.18);
+      doc.line(x + s * 0.78, y + s * 0.18, x + s * 0.92, y + s * 0.06);
+      doc.line(x + s * 0.08, y + s * 0.94, x + s * 0.18, y + s * 0.84);
+    });
   },
   receipt(doc, x, y, s, color) {
-    withColor(doc, color, () => doc.rect(x + s * 0.12, y, s * 0.76, s * 0.84, 'F'));
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(s * 0.06);
-    [0.22, 0.42, 0.62].forEach(fy => doc.line(x + s * 0.24, y + s * fy, x + s * 0.76, y + s * fy));
+    strokeIcon(doc, color, s * 0.065, () => {
+      doc.rect(x + s * 0.16, y, s * 0.68, s * 0.78, 'S');
+      [0.22, 0.42, 0.6].forEach(fy => doc.line(x + s * 0.27, y + s * fy, x + s * 0.73, y + s * fy));
+    });
   },
   arrowTransfer(doc, x, y, s, color) {
-    doc.setDrawColor(...color);
-    doc.setLineWidth(s * 0.14);
-    doc.line(x + s * 0.08, y + s * 0.5, x + s * 0.76, y + s * 0.5);
-    withColor(doc, color, () => doc.triangle(x + s * 0.68, y + s * 0.3, x + s * 0.68, y + s * 0.7, x + s * 0.96, y + s * 0.5, 'F'));
+    strokeIcon(doc, color, s * 0.09, () => {
+      doc.line(x + s * 0.06, y + s * 0.5, x + s * 0.84, y + s * 0.5);
+      doc.line(x + s * 0.84, y + s * 0.5, x + s * 0.62, y + s * 0.3);
+      doc.line(x + s * 0.84, y + s * 0.5, x + s * 0.62, y + s * 0.7);
+    });
   },
   calendar(doc, x, y, s, color) {
-    withColor(doc, color, () => doc.roundedRect(x, y + s * 0.15, s, s * 0.82, s * 0.08, s * 0.08, 'F'));
-    doc.setFillColor(255, 255, 255);
-    doc.rect(x + s * 0.08, y + s * 0.34, s * 0.84, s * 0.56, 'F');
-    withColor(doc, color, () => {
-      doc.rect(x + s * 0.15, y, s * 0.1, s * 0.26, 'F');
-      doc.rect(x + s * 0.75, y, s * 0.1, s * 0.26, 'F');
-      [0, 1].forEach(row => [0, 1, 2].forEach(colI => {
-        doc.rect(x + s * (0.14 + colI * 0.3), y + s * (0.42 + row * 0.24), s * 0.18, s * 0.16, 'F');
-      }));
+    strokeIcon(doc, color, s * 0.07, () => {
+      doc.roundedRect(x, y + s * 0.16, s, s * 0.8, s * 0.07, s * 0.07, 'S');
+      doc.line(x + s * 0.2, y, x + s * 0.2, y + s * 0.3);
+      doc.line(x + s * 0.8, y, x + s * 0.8, y + s * 0.3);
+      doc.line(x, y + s * 0.42, x + s, y + s * 0.42);
     });
   },
   clock(doc, x, y, s, color) {
-    doc.setDrawColor(...color);
-    doc.setLineWidth(s * 0.1);
-    doc.circle(x + s / 2, y + s / 2, s / 2 - s * 0.05, 'S');
-    doc.line(x + s / 2, y + s / 2, x + s / 2, y + s * 0.22);
-    doc.line(x + s / 2, y + s / 2, x + s * 0.72, y + s / 2);
+    strokeIcon(doc, color, s * 0.08, () => {
+      doc.circle(x + s / 2, y + s / 2, s / 2 - s * 0.05, 'S');
+      doc.line(x + s / 2, y + s / 2, x + s / 2, y + s * 0.22);
+      doc.line(x + s / 2, y + s / 2, x + s * 0.7, y + s / 2);
+    });
   },
   phone(doc, x, y, s, color) {
-    withColor(doc, color, () => doc.roundedRect(x + s * 0.26, y, s * 0.48, s, s * 0.14, s * 0.14, 'F'));
-    doc.setFillColor(255, 255, 255);
-    doc.rect(x + s * 0.34, y + s * 0.14, s * 0.32, s * 0.6, 'F');
+    strokeIcon(doc, color, s * 0.09, () => {
+      doc.roundedRect(x + s * 0.28, y, s * 0.44, s, s * 0.14, s * 0.14, 'S');
+      doc.line(x + s * 0.42, y + s * 0.84, x + s * 0.58, y + s * 0.84);
+    });
   },
   pin(doc, x, y, s, color) {
-    withColor(doc, color, () => {
-      doc.circle(x + s / 2, y + s * 0.34, s * 0.34, 'F');
-      doc.triangle(x + s * 0.22, y + s * 0.48, x + s * 0.78, y + s * 0.48, x + s * 0.5, y + s, 'F');
+    strokeIcon(doc, color, s * 0.08, () => {
+      doc.circle(x + s / 2, y + s * 0.34, s * 0.3, 'S');
+      doc.line(x + s * 0.28, y + s * 0.56, x + s * 0.5, y + s * 0.96);
+      doc.line(x + s * 0.72, y + s * 0.56, x + s * 0.5, y + s * 0.96);
+      doc.circle(x + s / 2, y + s * 0.34, s * 0.1, 'S');
     });
-    doc.setFillColor(255, 255, 255);
-    doc.circle(x + s / 2, y + s * 0.34, s * 0.13, 'F');
   },
   envelope(doc, x, y, s, color) {
-    withColor(doc, color, () => doc.rect(x, y + s * 0.15, s, s * 0.7, 'F'));
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(s * 0.08);
-    doc.line(x, y + s * 0.15, x + s / 2, y + s * 0.55);
-    doc.line(x + s, y + s * 0.15, x + s / 2, y + s * 0.55);
+    strokeIcon(doc, color, s * 0.07, () => {
+      doc.rect(x, y + s * 0.16, s, s * 0.68, 'S');
+      doc.line(x, y + s * 0.16, x + s / 2, y + s * 0.54);
+      doc.line(x + s, y + s * 0.16, x + s / 2, y + s * 0.54);
+    });
   },
 };
 
