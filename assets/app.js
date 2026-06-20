@@ -429,7 +429,7 @@ async function loadAssets() {
 
 function drawWatermark(doc) {
   if (!state.assets.watermark) return;
-  if (doc.GState && doc.setGState) doc.setGState(new doc.GState({ opacity: 0.1 }));
+  if (doc.GState && doc.setGState) doc.setGState(new doc.GState({ opacity: 0.18 }));
   doc.addImage(state.assets.watermark, 'PNG', 134.4, 42.3, 150, 212.3);
   if (doc.GState && doc.setGState) doc.setGState(new doc.GState({ opacity: 1 }));
 }
@@ -660,13 +660,9 @@ async function updatePreview() {
     try {
       const doc = generateDocument();
       const blob = doc.output('blob');
-      const previousUrl = state.previewUrl;
+      if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
       state.previewUrl = URL.createObjectURL(blob);
-      preview.src = 'about:blank';
-      requestAnimationFrame(() => {
-        preview.src = `${state.previewUrl}#view=FitH`;
-        if (previousUrl) URL.revokeObjectURL(previousUrl);
-      });
+      preview.src = `${state.previewUrl}#view=FitH`;
       pageCount.textContent = `${doc.getNumberOfPages()} página${doc.getNumberOfPages() === 1 ? '' : 's'} · A4`;
     } catch (error) {
       console.error(error);

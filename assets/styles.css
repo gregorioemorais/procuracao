@@ -217,14 +217,18 @@ input:focus, select:focus {
 
 .add-person-btn {
   width: 100%;
+  min-height: 40px;
   border: 1px dashed var(--line);
+  border-radius: 7px;
   background: #fff;
   color: var(--navy);
+  font-weight: 750;
   text-align: center;
   padding: 10px 12px;
+  cursor: pointer;
 }
 
-.add-person-btn:hover { border-color: var(--gold); color: var(--gold); filter: none; }
+.add-person-btn:hover { border-color: var(--gold); color: var(--gold); }
 .add-person-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
 .preview-pane {
