@@ -298,6 +298,8 @@ function renderPeopleUI(savedPeople) {
     card.appendChild(head);
 
     const typeLabel = document.createElement('label');
+    typeLabel.className = 'person-type-field';
+    typeLabel.hidden = state.mode !== 'normal';
     typeLabel.textContent = 'Tipo de pessoa';
     const typeSelect = document.createElement('select');
     typeSelect.name = `people.${index}.type`;
@@ -388,6 +390,7 @@ function updateModeUI() {
     button.classList.toggle('is-active', button.dataset.mode === state.mode);
   });
   const isMinor = state.mode !== 'normal';
+  document.querySelectorAll('.person-type-field').forEach(field => { field.hidden = isMinor; });
   guardianSection.hidden = !isMinor;
   guardianTitle.textContent = state.mode === 'under16' ? 'Representante' : 'Assistente';
 }
@@ -744,6 +747,11 @@ async function updatePreview() {
 document.querySelectorAll('[data-mode]').forEach(button => {
   button.addEventListener('click', () => {
     state.mode = button.dataset.mode;
+    if (state.mode !== 'normal') {
+      const draft = getDraft();
+      draft.people = draft.people.map(person => ({ ...person, type: 'pf' }));
+      renderPeopleUI(draft.people);
+    }
     updateModeUI();
     saveDraft();
     updatePreview();
@@ -814,6 +822,10 @@ window.addEventListener('beforeunload', () => {
 
 async function init() {
   const draft = loadDraft();
+  state.mode = ['normal', 'under16', 'over16'].includes(draft?.mode) ? draft.mode : 'normal';
+  if (state.mode !== 'normal' && draft.people) {
+    draft.people = draft.people.map(person => ({ ...person, type: 'pf' }));
+  }
   renderPeopleUI(draft.people);
   setDraft(draft);
   try {
