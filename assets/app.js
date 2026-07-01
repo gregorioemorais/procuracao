@@ -15,6 +15,9 @@ const FOOTER_GRAY = [125, 125, 128];
 const MAPS_URL = 'https://maps.app.goo.gl/r8CVrczAXdqNZc6u9';
 const WHATSAPP_URL = 'https://wa.me/5562993161514';
 const PEOPLE_LIMIT = 4;
+const CONTENT_TOP = 69;
+const CONTENT_BOTTOM = 268;
+const SIGNATURE_BOTTOM = 268;
 
 const PERSON_FIELD_GROUPS = [
   { fields: [
@@ -552,6 +555,14 @@ function drawPersonIcon(doc, x, y) {
   drawIcon(doc, 'person', x + 1, y, 13, GOLD);
 }
 
+function measureSection(doc, text) {
+  if (!text) return 0;
+  doc.setFont('times', 'normal');
+  doc.setFontSize(10.6);
+  const lines = doc.splitTextToSize(text, 145);
+  return Math.max(27, 13 + lines.length * 5.1);
+}
+
 function drawSection(doc, title, text, y) {
   if (!text) return y;
   drawPersonIcon(doc, 20, y + 1);
@@ -564,19 +575,13 @@ function drawSection(doc, title, text, y) {
   doc.setTextColor(...GRAY);
   const lines = doc.splitTextToSize(text, 145);
   doc.text(lines, 44, y + 11, { lineHeightFactor: 1.22, align: 'justify', maxWidth: 145 });
-  return y + Math.max(27, 13 + lines.length * 5.1);
+  return y + measureSection(doc, text);
 }
 
-function drawPowers(doc, y) {
+function getPowersLayout(doc) {
   const left = 19;
   const width = 172;
   const col = width / 3;
-  doc.setDrawColor(35, 35, 35);
-  doc.setLineWidth(0.2);
-  doc.line(left, y, left + width, y);
-  doc.setFont('times', 'bold');
-  doc.setTextColor(...GOLD);
-  doc.setFontSize(10.5);
 
   let maxBodyLines = 0;
   const bodies = POWER_COLUMNS.map(column => {
@@ -584,6 +589,38 @@ function drawPowers(doc, y) {
     maxBodyLines = Math.max(maxBodyLines, lines.length);
     return lines;
   });
+  const maxItems = Math.max(...POWER_COLUMNS.map(c => c.examples.length));
+  const rowH = 5.4;
+  const bodyYOffset = 24;
+  const examplesYOffset = bodyYOffset + maxBodyLines * 4.5 + 9;
+  const height = examplesYOffset + maxItems * rowH + 4;
+
+  return { left, width, col, bodies, maxItems, rowH, bodyYOffset, examplesYOffset, height };
+}
+
+function measurePowers(doc) {
+  return getPowersLayout(doc).height;
+}
+
+function drawPowers(doc, y) {
+  const {
+    left,
+    width,
+    col,
+    bodies,
+    maxItems,
+    rowH,
+    bodyYOffset,
+    examplesYOffset,
+    height,
+  } = getPowersLayout(doc);
+
+  doc.setDrawColor(35, 35, 35);
+  doc.setLineWidth(0.2);
+  doc.line(left, y, left + width, y);
+  doc.setFont('times', 'bold');
+  doc.setTextColor(...GOLD);
+  doc.setFontSize(10.5);
 
   POWER_COLUMNS.forEach((column, index) => {
     const center = left + col * index + col / 2;
@@ -591,7 +628,7 @@ function drawPowers(doc, y) {
     doc.text(column.title.split('\n'), center, y + 13, { align: 'center', lineHeightFactor: 1.05 });
   });
 
-  const bodyY = y + 24;
+  const bodyY = y + bodyYOffset;
   doc.line(left, bodyY - 2, left + width, bodyY - 2);
   doc.setFont('times', 'normal');
   doc.setFontSize(9.8);
@@ -601,16 +638,14 @@ function drawPowers(doc, y) {
     doc.text(lines, center, bodyY + 3, { align: 'center', lineHeightFactor: 1.12 });
   });
 
-  const examplesY = bodyY + maxBodyLines * 4.5 + 9;
+  const examplesY = y + examplesYOffset;
   doc.line(left, examplesY - 6, left + width, examplesY - 6);
   doc.setFont('times', 'normal');
   doc.setFontSize(8.6);
   doc.setTextColor(...GRAY);
 
-  const rowH = 5.4;
   const iconSize = 3.4;
   const gap = 1.5;
-  const maxItems = Math.max(...POWER_COLUMNS.map(c => c.examples.length));
   POWER_COLUMNS.forEach((column, index) => {
     const center = left + col * index + col / 2;
     const blockHeight = column.examples.length * rowH;
@@ -624,9 +659,13 @@ function drawPowers(doc, y) {
     });
   });
 
-  const bottom = examplesY + maxItems * rowH + 4;
+  const bottom = y + height;
   doc.line(left, bottom, left + width, bottom);
   return bottom;
+}
+
+function measureClosing() {
+  return 22;
 }
 
 function drawClosing(doc, draft, y) {
@@ -664,10 +703,20 @@ function drawSignature(doc, label, x, y, width = 78) {
   doc.text(label, x + width / 2, y + 6, { align: 'center' });
 }
 
+function needsPage(y, height, bottom = CONTENT_BOTTOM) {
+  return y + height > bottom;
+}
+
 function addContentPage(doc, title = 'PROCURAÇÃO') {
   doc.addPage('a4', 'portrait');
   drawPageChrome(doc, title);
-  return 69;
+  return CONTENT_TOP;
+}
+
+function drawPaginatedSection(doc, title, text, y) {
+  const height = measureSection(doc, text);
+  if (height && needsPage(y, height)) y = addContentPage(doc);
+  return drawSection(doc, title, text, y);
 }
 
 function generateDocument(draft = getDraft()) {
@@ -676,34 +725,37 @@ function generateDocument(draft = getDraft()) {
   doc.setProperties({ title: 'Procuração', author: 'Gregório & Morais Advogados' });
   drawPageChrome(doc);
 
-  let y = 69;
+  let y = CONTENT_TOP;
   const peopleList = draft.people && draft.people.length ? draft.people : [{}];
   const qualifications = peopleList.map(p => buildQualification(p, { ageClause: ageClause(draft) }));
   const activeCount = qualifications.filter(Boolean).length;
   const personText = joinQualifications(qualifications);
   const outorganteTitle = activeCount > 1 ? 'OUTORGANTES' : 'OUTORGANTE';
-  y = drawSection(doc, outorganteTitle, personText, y);
+  y = drawPaginatedSection(doc, outorganteTitle, personText, y);
 
   if (draft.mode !== 'normal') {
     const title = draft.mode === 'under16' ? 'REPRESENTANTE' : 'ASSISTENTE';
     const guardianText = buildQualification(draft.guardian, {
       quality: draft.mode === 'over16' ? clean(draft.guardian.relation) : '',
     });
-    y = drawSection(doc, title, guardianText, y);
+    y = drawPaginatedSection(doc, title, guardianText, y);
   }
 
-  y = drawSection(doc, draft.mode === 'under16' ? 'OUTORGADOS' : 'OUTORGADO', ATTORNEYS, y);
-  if (y > 174) y = addContentPage(doc);
-  y = drawPowers(doc, y + 2);
-  if (y > 242) y = addContentPage(doc);
-  y = drawClosing(doc, draft, y + 3);
+  y = drawPaginatedSection(doc, draft.mode === 'under16' ? 'OUTORGADOS' : 'OUTORGADO', ATTORNEYS, y);
+  const powersY = y + 2;
+  y = needsPage(powersY, measurePowers(doc)) ? addContentPage(doc) : powersY;
+  y = drawPowers(doc, y);
+
+  const closingY = y + 3;
+  y = needsPage(closingY, measureClosing()) ? addContentPage(doc) : closingY;
+  y = drawClosing(doc, draft, y);
 
   if (draft.mode === 'normal') {
     const signaturePeople = peopleList.filter(person => buildQualification(person));
     const signatureCount = Math.max(1, signaturePeople.length);
-    let sigY = Math.min(254, y + 18);
+    let sigY = y + 18;
     for (let i = 0; i < signatureCount; i += 1) {
-      if (sigY > 254) sigY = addContentPage(doc);
+      if (needsPage(sigY, 8, SIGNATURE_BOTTOM)) sigY = addContentPage(doc);
       const label = signaturePeople[i]?.type === 'pj' ? 'OUTORGANTE/REPRESENTANTE LEGAL' : 'OUTORGANTE';
       drawSignature(doc, label, 66, sigY, 78);
       sigY += 18;
